@@ -1,0 +1,118 @@
+package com.salody.sldcontroller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.salody.dto.BoardDTO;
+import com.salody.dto.BrdCriteria;
+import com.salody.dto.PageDTO;
+import com.salody.service.Board2ServiceImpl;
+
+@Controller
+@RequestMapping("/board")
+public class Board2Controller {
+	
+	private static final Logger logger = LoggerFactory.getLogger(Board2Controller.class);
+	
+	@Autowired
+	Board2ServiceImpl bservice;
+	
+	@RequestMapping(value="/write", method=RequestMethod.GET)
+	public void brdwrite2() {	
+	}
+	@RequestMapping(value="/writePost", method=RequestMethod.POST)
+	public String postWrite(BoardDTO bdto, Model model) {
+		System.out.println("writePost");
+		
+		bservice.write2(bdto);
+		model.addAttribute("loadSult", "success");
+
+		//return "board/list";
+		//출력) selected결과가 나타나지 않음.
+		
+		//cntler - cntler로 전달해야하기때문에
+		//즉, @RequestMapping에서 GetMapping으로 전달해야하기때문에
+		//:/redirect를 추가입력한다.
+		return "redirect:/board/list";	
+	}
+	/*페이징 하기 전 /list
+	@GetMapping("/list")
+	//controller(MVC) - service - DAO
+	public void GetList(Model model) {
+		model.addAttribute("list2", bservice.list2());
+		//정보를 저장해야하기 때문에 - setter역할을 한다.
+		//결과를 .jsp로 전달하기위해서 Model이라는 bean(필통) 필요
+		//model.addAttribute("attrName",attrValue");
+		
+		//selected 결과를 console에서 확인하기위해서 실행
+		//bservice.list2().forEach(board->logger.info(""+board));
+		
+		//메소드의 갯수 setter는 2개
+		//request.setAttribute("list",selected 결과)와 같음
+		//메소드의 갯수 getter는 1개
+		//<% request.getAttribute("list")%>
+	}*/
+	
+	//페이징 목록 리스트
+	@GetMapping("/list")
+	public void getListPaging(BrdCriteria bcri, Model model) {
+		int total=bservice.getTotal();
+		logger.info("criterita = " + bcri);
+		logger.info("전체건수 = " + total);
+		//bservice.getTotal(); //select count(*) from tbName;
+		model.addAttribute("list2",bservice.list2(bcri));
+		model.addAttribute("pageMaker",new PageDTO(bcri,total));
+	}
+	
+	@GetMapping("/read")
+	public String detail2(Model model, BoardDTO bdto) {
+		//bservice.detail2(bdto);
+		//logger.info("값이 넘어가는지 확인" + detail2);
+		model.addAttribute("detail2",bservice.detail2(bdto));
+		return "board/read";
+	}
+	
+	@GetMapping("/update")
+	public void GetUpdate(BoardDTO bdto,Model model) {
+	//selected결과를 전달해야하기때문에 Model을 활용한다.	
+		model.addAttribute("update2",bservice.detail2(bdto));
+		logger.info("update 가능한가?");
+		//출력) bno=0
+		//bservice.PostUpdate2(bdto);
+	
+	}
+	
+	@PostMapping("/update")
+	public String update2(BoardDTO bdto) {
+		bservice.update2(bdto);
+		//출력) bno=0
+		//bservice.PostUpdate2(bdto);
+		//return "redirect:/board/update?bno="+bdto.getBno();
+		//detail을 검색할 때도 (select * from tbName where?bno=)
+		//이기때문에 활용하여 DTO에 있는 bno를 가지고오려고 해야한다.
+		return "redirect:/board/list";
+	}
+	
+	@RequestMapping(value="/delete", method=RequestMethod.POST)
+	public String delete2(BoardDTO bdto) {
+		logger.info("삭제하시겠습니까?");
+		bservice.delete2(bdto);
+		
+		return "redirect:/board/list";
+	}
+	
+	@GetMapping("/detailAction")
+	public String showImg(Model model, BoardDTO bdto) {
+		//bservice.detail2(bdto);
+		//logger.info("값이 넘어가는지 확인" + detail2);
+		model.addAttribute("showImg",bservice.showImg(bdto));
+		return "board/read";
+	}
+}
