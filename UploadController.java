@@ -22,12 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import com.salody.dto.BoardAttachDTO;
 
-/*  1. 현재날짜로 된 폴더 생성
-	2. 날짜로 된 폴더에 파일 생성
-	3.BoardAttach에 들어가있는 파일 저장 (for문의 set으로 되어있는 부분)
-	Controller에 BoardDTO와 attlist가 저장되어 있어서 => service로 데이터 전달
-*/
-
 @Controller
 @RequestMapping("/brdUpload")
 public class UploadController {
